@@ -16,3 +16,5 @@ impl SdrDataType {
         }
     }
 }
+
+pub type pluto_complex = num::complex::Complex<f32>;

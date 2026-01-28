@@ -774,7 +774,8 @@ impl<'a> traits::RxCore<'a> for Pluto<'a> {
         todo!()
     }
 
-    fn rx_complex(&mut self) -> Result<Vec<Vec<(i128, i128)>>, ()> {
+    fn rx_complex(&mut self) -> Result<Vec<Vec<datatypes::pluto_complex>>, ()>
+    {
         let mut out = vec![];
         let data = <Pluto<'a> as RxCore<'a>>::rx_buffered_data(self)?;
         let data_len = data.len();
@@ -783,7 +784,7 @@ impl<'a> traits::RxCore<'a> for Pluto<'a> {
         }
         for i in (0..data_len).step_by(2) {
             let zipped =
-                std::iter::zip(data[i].clone(), data[i + 1].clone()).collect::<Vec<(i128, i128)>>();
+                std::iter::zip(data[i].clone(), data[i + 1].clone()).map(|f| datatypes::pluto_complex::new(f.0 as f32, f.1 as f32)).collect::<Vec<datatypes::pluto_complex>>();
             out.push(zipped);
         }
 
@@ -966,7 +967,8 @@ impl<'a> traits::TxCore<'a> for Pluto<'a> {
         todo!()
     }
 
-    fn tx(&mut self, data_opt: Option<Vec<Vec<(i128, i128)>>>) -> Result<(), ()> {
+    fn tx(&mut self, data_opt: Option<Vec<Vec<datatypes::pluto_complex>>>) -> Result<(), ()>
+    {
         let txdac = self.txdac.as_ref().ok_or(())?;
         let iio_context = self.context.as_ref().get_iio_context();
         let iio_txdac = iio_context.find_device(&self.tx_data_device_name)?;
@@ -1024,8 +1026,8 @@ impl<'a> traits::TxCore<'a> for Pluto<'a> {
                 let stride = num_tx_channels_enabled * 2;
                 let mut out_data = vec![0; stride * data[0].len() * 2];
                 for (channel_index, channel_data) in data.iter().enumerate() {
-                    let real_values = channel_data.iter().map(|f| f.0);
-                    let imaginary_values = channel_data.iter().map(|f| f.1);
+                    let real_values = channel_data.iter().map(|f| (f.re as i128) << 14);
+                    let imaginary_values = channel_data.iter().map(|f| (f.im as i128) << 14);
                     for (index, real) in real_values.enumerate() {
                         let real_bytes = (real as u16).to_le_bytes();
                         out_data[((channel_index * 2 + index) * 2) * 2] = real_bytes[0];
