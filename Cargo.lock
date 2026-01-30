@@ -19,7 +19,7 @@ checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 [[package]]
 name = "iio"
 version = "0.1.0"
-source = "git+https://github.com/nothixy/libiio-rs.git#b020f80afd9746f70ef8f5afbbb616c28976a43a"
+source = "git+https://github.com/nothixy/libiio-rs.git#3664c629b0ca4d45aeb97fd29618094c41599f47"
 dependencies = [
  "libc",
 ]

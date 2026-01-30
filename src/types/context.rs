@@ -28,8 +28,8 @@ impl<'a> Context<'a> {
         Ok(Box::new(device_mut))
     }
 
-    pub fn new_from_string(uri: &'a str) -> Result<Context<'a>, ()> {
-        let context_ptr = iio::IIOContext::create_from_uri(uri);
+    pub fn new_from_string(uri: String) -> Result<Context<'a>, ()> {
+        let context_ptr = iio::IIOContext::create_from_uri(uri.as_str());
         if let Some(mut context) = context_ptr {
             let version = context.get_version().map_err(|_| ())?;
             let name = context.get_name().map_err(|_| ())?;

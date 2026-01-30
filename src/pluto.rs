@@ -115,8 +115,8 @@ fn implicit_convert(data: &[u8], be: bool, signed: bool, length: u32) -> Result<
 // Le problème c'est qu'il faut des getters dans tous les sens et j'ai une flemme monstrueuse de faire ça maintenant
 
 impl<'a> Pluto<'a> {
-    pub fn new(uri: Option<&'a str>) -> Result<Pluto<'a>, ()> {
-        let uri_string = uri.unwrap_or("192.168.2.1");
+    pub fn new(uri: Option<String>) -> Result<Pluto<'a>, ()> {
+        let uri_string = uri.unwrap_or("192.168.2.1".to_owned());
 
         let device_name = Some("PlutoSDR".to_owned());
 
@@ -384,7 +384,7 @@ impl<'a> traits::ContextManager<'a> for Pluto<'a> {
     }
 
     fn init(
-        uri: Option<&'a str>,
+        uri: Option<String>,
         device_name: Option<&str>,
     ) -> Result<Box<types::context::Context<'a>>, ()> {
         let version = iio::get_version();
@@ -401,7 +401,7 @@ impl<'a> traits::ContextManager<'a> for Pluto<'a> {
             for context in contexts {
                 if context.1.contains(device_name_str) {
                     let context_0 = context.0;
-                    let context_res = types::context::Context::new_from_string(context_0)?;
+                    let context_res = types::context::Context::new_from_string(context_0.to_owned())?;
                     let final_context = Box::new(context_res);
                     return Ok(final_context);
                 }
@@ -423,7 +423,7 @@ impl<'a> traits::SharedDef<'a> for Pluto<'a> {
     }
 
     fn init(
-        uri_opt: Option<&'a str>,
+        uri_opt: Option<String>,
         device_name: Option<String>,
         rx_data_device_name: &str,
         control_device_name_opt: Option<&str>,
@@ -448,11 +448,11 @@ impl<'a> traits::SharedDef<'a> for Pluto<'a> {
             let contexts = types::context_manager::scan_contexts()?;
             let mut context_ret = None;
             for context in contexts {
-                let inner_context = types::context::Context::new_from_string(context.0)?;
+                let inner_context = types::context::Context::new_from_string(context.0.to_owned())?;
                 let devs_devices = inner_context.get_devices().map_err(|_| ())?;
                 let mut devs = devs_devices.iter().map(|f| f.get_name());
                 if devs.all(|f| required_devices.contains(&f)) {
-                    context_ret = Some(types::context::Context::new_from_string(context.0)?);
+                    context_ret = Some(types::context::Context::new_from_string(context.0.to_owned())?);
                 }
             }
 
@@ -774,7 +774,7 @@ impl<'a> traits::RxCore<'a> for Pluto<'a> {
         todo!()
     }
 
-    fn rx_complex(&mut self) -> Result<Vec<Vec<datatypes::pluto_complex>>, ()>
+    fn rx_complex(&mut self) -> Result<Vec<Vec<datatypes::PlutoComplex>>, ()>
     {
         let mut out = vec![];
         let data = <Pluto<'a> as RxCore<'a>>::rx_buffered_data(self)?;
@@ -784,7 +784,7 @@ impl<'a> traits::RxCore<'a> for Pluto<'a> {
         }
         for i in (0..data_len).step_by(2) {
             let zipped =
-                std::iter::zip(data[i].clone(), data[i + 1].clone()).map(|f| datatypes::pluto_complex::new(f.0 as f32, f.1 as f32)).collect::<Vec<datatypes::pluto_complex>>();
+                std::iter::zip(data[i].clone(), data[i + 1].clone()).map(|f| datatypes::PlutoComplex::new(f.0 as f32, f.1 as f32)).collect::<Vec<datatypes::PlutoComplex>>();
             out.push(zipped);
         }
 
@@ -967,7 +967,7 @@ impl<'a> traits::TxCore<'a> for Pluto<'a> {
         todo!()
     }
 
-    fn tx(&mut self, data_opt: Option<Vec<Vec<datatypes::pluto_complex>>>) -> Result<(), ()>
+    fn tx(&mut self, data_opt: Option<Vec<Vec<datatypes::PlutoComplex>>>) -> Result<(), ()>
     {
         let txdac = self.txdac.as_ref().ok_or(())?;
         let iio_context = self.context.as_ref().get_iio_context();

@@ -54,7 +54,7 @@ pub type Ad9364InitResult = (
 pub trait ContextManager<'a> {
     fn get_ctx(&self) -> &'a types::device_trigger::DeviceTrigger;
     fn init(
-        uri: Option<&'a str>,
+        uri: Option<String>,
         device_name: Option<&str>,
     ) -> Result<Box<types::context::Context<'a>>, ()>;
 }
@@ -75,7 +75,7 @@ pub trait SharedDef<'a> {
     fn get_complex_data(&self);
     fn get_control_device_name(&self);
     fn init(
-        uri_opt: Option<&'a str>,
+        uri_opt: Option<String>,
         device_name: Option<String>,
         rx_data_device_name: &str,
         control_device_name_opt: Option<&str>,
@@ -202,7 +202,7 @@ pub trait TxCore<'a> {
     fn get_tx_enabled_channels(&self) -> Vec<i32>;
     fn set_tx_enabled_channels(&self, value: Vec<i32>);
     fn tx_destroy_buffer(&mut self);
-    fn tx(&mut self, data_opt: Option<Vec<Vec<datatypes::pluto_complex>>>) -> Result<(), ()>;
+    fn tx(&mut self, data_opt: Option<Vec<Vec<datatypes::PlutoComplex>>>) -> Result<(), ()>;
     fn tx_buffer_push(&mut self, data: Vec<u8>) -> Result<(), ()>;
     fn tx_init_channels(&mut self) -> Result<(), ()>;
 }
@@ -228,7 +228,7 @@ pub trait RxCore<'a> {
     fn get_rx_channel_scales(&self) -> Vec<f32>;
     fn get_rx_channel_offsets(&self) -> Vec<f32>;
     fn rx_unbuffered_data(&self) -> Vec<Vec<f32>>;
-    fn rx_complex(&mut self) -> Result<Vec<Vec<datatypes::pluto_complex>>, ()>;
+    fn rx_complex(&mut self) -> Result<Vec<Vec<datatypes::PlutoComplex>>, ()>;
     fn rx_non_complex(&self) -> Vec<Vec<f32>>;
     fn rx(&mut self) -> Vec<Vec<f32>>;
     fn rx_init_channels(&mut self) -> Result<(), ()>;
